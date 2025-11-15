@@ -12,10 +12,14 @@
     <url>http://maven.apache.org</url>
 
     <!-- ⭐ Add Java 17 here -->
+    <version>${revision}</version>   <!-- Line 10 (replace static version) -->
+
     <properties>
+        <revision>0.0.1</revision>   <!-- Line 12 (add revision property) -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+
 
     <dependencies>
 
