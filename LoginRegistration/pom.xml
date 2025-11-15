@@ -7,19 +7,15 @@
     <groupId>com.shiva</groupId>
     <artifactId>LoginRegistration</artifactId>
     <packaging>war</packaging>
-    <version>0.0.1-${env.BUILD_NUMBER}</version>
+    <version>${revision}</version>   <!-- Keep only this line -->
     <name>LoginRegistration Maven Webapp</name>
     <url>http://maven.apache.org</url>
 
-    <!-- ⭐ Add Java 17 here -->
-    <version>${revision}</version>   <!-- Line 10 (replace static version) -->
-
     <properties>
-        <revision>0.0.1</revision>   <!-- Line 12 (add revision property) -->
+        <revision>0.0.1</revision>   <!-- Revision property for dynamic versioning -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
-
 
     <dependencies>
 
@@ -30,7 +26,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Correct dependency for Tomcat 9 -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
