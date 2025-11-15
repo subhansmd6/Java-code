@@ -1,6 +1,5 @@
 name: Java CI/CD Pipeline
 
-# Trigger workflow on push to main branch
 on:
   push:
     branches:
@@ -14,73 +13,73 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Unique Docker image tag per workflow run
-      DOCKER_IMAGE: subhansmd6/java-app:${{ github.run_number }}
+      # Dynamic version for artifact and Docker image
       ARTIFACT_VERSION: 0.0.1-${{ github.run_number }}
+      DOCKER_IMAGE: subhansmd6/java-app:${{ env.ARTIFACT_VERSION }}
 
     steps:
-    # Step 1: Checkout the code
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      # Step 1: Checkout code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    # Step 2: Set up JDK 17
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
+      # Step 2: Set up JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
 
-    # Step 3: Set up Maven
-    - name: Set up Maven
-      uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 17
-        cache: maven
+      # Step 3: Set up Maven with cache
+      - name: Set up Maven
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
 
-    # Step 4: Compile the project
-    - name: Compile Project
-      working-directory: LoginRegistration
-      run: mvn clean compile -Drevision=${{ env.ARTIFACT_VERSION }}
+      # Step 4: Compile project
+      - name: Compile Project
+        working-directory: LoginRegistration
+        run: mvn clean compile -Drevision=${{ env.ARTIFACT_VERSION }}
 
-    # Step 5: SonarQube Analysis
-    - name: SonarQube Scan
-      working-directory: LoginRegistration
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        mvn sonar:sonar \
-          -Dsonar.projectKey=java-project \
-          -Dsonar.host.url=http://54.149.56.125:9000 \
-          -Dsonar.login=${SONAR_TOKEN} \
-          -Drevision=${{ env.ARTIFACT_VERSION }}
+      # Step 5: SonarQube Analysis
+      - name: SonarQube Scan
+        working-directory: LoginRegistration
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=java-project \
+            -Dsonar.host.url=http://54.149.56.125:9000 \
+            -Dsonar.login=${SONAR_TOKEN} \
+            -Drevision=${{ env.ARTIFACT_VERSION }}
 
-    # Step 6: Build WAR
-    - name: Build WAR
-      working-directory: LoginRegistration
-      run: mvn clean package -DskipTests -Drevision=${{ env.ARTIFACT_VERSION }}
+      # Step 6: Build WAR
+      - name: Build WAR
+        working-directory: LoginRegistration
+        run: mvn clean package -DskipTests -Drevision=${{ env.ARTIFACT_VERSION }}
 
-    # Step 7: Deploy WAR to Nexus
-    - name: Deploy WAR to Nexus
-      working-directory: LoginRegistration
-      env:
-        NEXUS_USER: ${{ secrets.NEXUS_USER }}
-        NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
-      run: |
-        mvn deploy -DskipTests -Drevision=${{ env.ARTIFACT_VERSION }} \
-          -DaltDeploymentRepository=maven-releases::default::http://${NEXUS_USER}:${NEXUS_PASS}@54.149.56.125:8081/repository/maven-releases
+      # Step 7: Deploy WAR to Nexus
+      - name: Deploy WAR to Nexus
+        working-directory: LoginRegistration
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+        run: |
+          mvn deploy -DskipTests -Drevision=${{ env.ARTIFACT_VERSION }} \
+            -DaltDeploymentRepository=maven-releases::default::http://${NEXUS_USER}:${NEXUS_PASS}@54.149.56.125:8081/repository/maven-releases
 
-    # Step 8: Build Docker Image
-    - name: Build Docker Image
-      working-directory: LoginRegistration
-      run: docker build -t $DOCKER_IMAGE .
+      # Step 8: Build Docker Image
+      - name: Build Docker Image
+        working-directory: LoginRegistration
+        run: docker build -t $DOCKER_IMAGE .
 
-    # Step 9: Push Docker Image to Docker Hub
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USER }}
-        password: ${{ secrets.DOCKERHUB_PASS }}
+      # Step 9: Push Docker Image to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
 
-    - name: Push Docker Image
-      run: docker push $DOCKER_IMAGE
+      - name: Push Docker Image
+        run: docker push $DOCKER_IMAGE
