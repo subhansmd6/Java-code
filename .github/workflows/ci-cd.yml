@@ -40,12 +40,12 @@ jobs:
 
       # Step 4: Compile the project
       - name: Compile Project
-        working-directory: LoginRegistration
+        working-directory: Java-code
         run: mvn clean compile -Drevision=${{ env.ARTIFACT_VERSION }}
 
       # Step 5: SonarQube Analysis
       - name: SonarQube Scan
-        working-directory: LoginRegistration
+        working-directory: Java-code
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -57,12 +57,12 @@ jobs:
 
       # Step 6: Build WAR
       - name: Build WAR
-        working-directory: LoginRegistration
+        working-directory: Java-code
         run: mvn clean package -DskipTests -Drevision=${{ env.ARTIFACT_VERSION }}
 
       # Step 7: Deploy WAR to Nexus
       - name: Deploy WAR to Nexus
-        working-directory: LoginRegistration
+        working-directory: Java-code
         env:
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
@@ -72,7 +72,7 @@ jobs:
 
       # Step 8: Build Docker Image
       - name: Build Docker Image
-        working-directory: LoginRegistration
+        working-directory: Java-code
         run: docker build -t $DOCKER_IMAGE .
 
       # Step 9: Login to Docker Hub
